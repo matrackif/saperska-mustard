@@ -139,8 +139,7 @@ public class Board {
         squares[i][j].reveal();
         if (!gameOver) {
             System.out.println("The client: " + clientUsername + " has the following players in his array list: ");
-            for (String s : players)
-                System.out.println(s);
+            System.out.println(players);
 
             currentPlayerIndex++;
             currentPlayerIndex %= players.size();

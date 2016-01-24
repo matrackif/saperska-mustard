@@ -60,6 +60,8 @@ public class Game {
             usernameOfPlayer += "1";  //this line right here gets rid of the awkwardness of having two players with the same username in-game
         System.out.println("a player: " + usernameOfPlayer + " connected to game " + getIndex());
         info.getPlayers().add(usernameOfPlayer);
+
+
         if (info.getPlayers().size() == 4) {
             isOpen = false;
             System.out.println("A game of index " + getIndex() + " was filled.");

@@ -105,8 +105,15 @@ public class MinesweeperThreadedServer {
 
     public static void sendToGame(Object obj, int gameIndex) {
         for (ConnectionToClient c : ALL_CLIENTS) {
-            if (c.getGameIndex() == gameIndex) c.write(obj);
-            System.out.println("Client by the name of " + c.getUsernameOfClient() + " has a gameIndex of" + c.getGameIndex());
+            if (c.getGameIndex() == gameIndex) {
+                if (obj instanceof GameInfo) {
+                    GameInfo test = (GameInfo) obj;
+                    System.out.println("About to send to player: " + c.getUsernameOfClient() + " this gameInfo: " + test.getPlayers() + " game index: " + c.getGameIndex());
+                }
+
+                c.write(obj);
+            }
+
         }
 
     }
@@ -157,7 +164,7 @@ public class MinesweeperThreadedServer {
                                 //make a new Game from the info:
                                 Game newGame = new Game(info);
                                 gameIndex = info.getGameIndex();
-                                //ALL_GAMES.add(newGame);
+
 
                                 ALL_GAMES.put(gameIndex, newGame);
                                 System.out.println("Server claims there are this many games atm: " + ALL_GAMES.size());
@@ -184,7 +191,7 @@ public class MinesweeperThreadedServer {
                                             i = (int) (Math.random() * INDEXER); //we randomize a game for him here
                                             game = getGame(i);
                                             System.out.println("i: " + i);
-                                        }
+                                        }//maybe some flawed logic here?
                                     } while (!game.isOpen());//looping through all games until one is open
 
                                     //add the new player to the game:
@@ -194,15 +201,17 @@ public class MinesweeperThreadedServer {
                                     //now we send the updated GameInfo to all players in that game
                                     //this also means that the newly connected player will learn what the size of the Board is, etc.
                                     GameInfo info = game.getInfo();
+
                                     gameIndex = info.getGameIndex();
-                                    sendToGame(info, gameIndex);
+
+                                    sendToGame(info, getGameIndex());
                                     sendToGame("SERVER: " + usernameOfClient + " connected to this game!", getGameIndex());
                                 }
 
                                 //IF THE STRING DID NOT START WITH '@', THEN ITS A CHAT MESSAGE, SO WE SEND IT TO ALL PLAYERS IN THIS GAME
                                 else {
                                     sendToGame((String) obj, getGameIndex());
-                                    status((String) obj);
+
                                 }
                             }
 

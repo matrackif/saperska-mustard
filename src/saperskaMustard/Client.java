@@ -42,7 +42,7 @@ public class Client {
             table.getWhosePlayerTurnItIsLabel().setText("Waiting for game start");
             //sending the info to the server, also means that a new Game will start on the server
             server.write(info);
-            hasGameInfo = true; //becomes true, because we obviosly already created the Board and tableGUI
+            hasGameInfo = true; //becomes true, because we obviously already created the Board and tableGUI
 
         } else {
 
@@ -60,6 +60,7 @@ public class Client {
         Thread handleObjectsFromServer = new Thread() {
             public void run() {
 
+
                 while (true) {
 
                     try {
@@ -70,7 +71,7 @@ public class Client {
 
                             popup.dispose();    //get rid of the popup
 
-                            info = ((GameInfo) objectFromServer);
+                            Client.this.info = ((GameInfo) objectFromServer);
                             hasGameInfo = true;
 
                             //create new Board and GUI using the GameInfo
@@ -79,33 +80,42 @@ public class Client {
                             board = new Board(info, clientUsername, Client.this, false);
                             table = new TableGUI(info, clientUsername, board, false);
                             table.getWhosePlayerTurnItIsLabel().setText("Waiting for host");
+                            board.updateBoard(Client.this.info);
 
                         }
 
                         //otherwise, IF WE ALREADY HAVE RECEIVED INFO, WE UPDATE OUR BOARD.
                         //because it means a new player has joined/left the Game
                         else if (objectFromServer instanceof GameInfo && hasGameInfo == true) {
+                            Client.this.info = (GameInfo) objectFromServer;
+                            board.updateBoard(Client.this.info);
                             System.out.println("The client " + clientUsername + " will update his board with the following players: ");
-                            System.out.println(((GameInfo) objectFromServer).getPlayers());
-                            board.updateBoard((GameInfo) objectFromServer);
+                            System.out.println(info.getPlayers());
+
+
                         }
 
 
                         //if we receive a String from the server, then we know its a new chat message, so we add it to the chatbox
                         else if (objectFromServer instanceof String) {
+
                             String message = (String) objectFromServer;
                             table.getChatboxArea().append(message + "\n");
+
                         }
 
                         //if we receive a twodimensional aray of booleans, we setUp our mines and create buttons.
                         else if (objectFromServer instanceof boolean[][]) {
+
                             boolean[][] mines = (boolean[][]) objectFromServer;
                             board.setUpSquares(mines);
+
 
                         }
 
                         //if we received an array of ints, it means these are coordinates, so we click using them.
                         else if (objectFromServer instanceof int[]) {
+
                             int[] coordinates = ((int[]) objectFromServer);
                             table.getChatboxArea().append(board.getCurrentPlayer() + " has clicked the square (" + coordinates[0] + "," + coordinates[1] + ")\n");
                             board.receiveClick(coordinates[0], coordinates[1]);
